@@ -8,7 +8,7 @@ RUN go env -w GOPROXY=https://goproxy.cn,direct
 
 RUN go mod download
 
-RUN go run server.go $Endpoint $AccessKey $SecretKey $Bucket
+CMD go run server.go $Endpoint $AccessKey $SecretKey $Bucket
 #FROM alpine
 #
 #WORKDIR /app
