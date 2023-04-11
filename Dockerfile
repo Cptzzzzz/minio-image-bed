@@ -10,13 +10,12 @@ RUN go mod download
 
 RUN go build -o server server.go
 
+CMD server $Endpoint $AccessKey $SecretKey $Bucket
+#FROM alpine
+#
+#WORKDIR /app
+#
+#COPY --from=builder /work/server /app/server
+#
+#EXPOSE 8080
 
-FROM alpine
-
-WORKDIR /app
-
-COPY --from=builder /work/server /app/server
-
-EXPOSE 8080
-
-CMD /app/server $Endpoint $AccessKey $SecretKey $Bucket
