@@ -8,15 +8,15 @@ RUN go env -w GOPROXY=https://goproxy.cn,direct
 
 RUN go mod download
 
-RUN go build -o image-server server.go
+RUN go build -o server server.go
 
 
 FROM alpine
 
 WORKDIR /app
 
-COPY --from=builder /work/image-server /app/image-server
+COPY --from=builder /work/server /app/server
 
 EXPOSE 8080
 
-CMD /app/image-server $Endpoint $AccessKey $SecretKey $Bucket
+CMD /app/server $Endpoint $AccessKey $SecretKey $Bucket
