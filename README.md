@@ -62,36 +62,43 @@ URL:`127.0.0.1：9000/bucket/filename`
 package main
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
+	"io"
 	"net/http"
+	"os"
 	"path"
 	"time"
 )
 
 var minioClient *minio.Client
 
-const BucketName = "typora"
-const Domain = "127.0.0.1:9000"
+var bucketName string
+var endpoint string
 
-func connect() {
+func prepare() {
 	minioClient = nil
-	endpoint := Domain
-	accessKeyID := "MQTYX33BJR24UQKWBVKY"
-	secretAccessKey := "elQ+3ngJ9+6C+XlVhu1FPAZX3PRMyFHEinmC3Jo7"
+	endpoint = os.Args[1]
+	accessKeyID := os.Args[2]
+	secretAccessKey := os.Args[3]
+	bucketName = os.Args[4]
 	useSSL := false
-	minio, _ := minio.New(endpoint, &minio.Options{
+	minio, err := minio.New(endpoint, &minio.Options{
 		Creds:  credentials.NewStaticV4(accessKeyID, secretAccessKey, ""),
 		Secure: useSSL,
 	})
+	if err != nil {
+		fmt.Println(err)
+	}
 	minioClient = minio
 }
 
 func main() {
-	connect()
-	http.HandleFunc("/upload", upload)
+	prepare()
+	http.HandleFunc("/", upload)
 	http.ListenAndServe("0.0.0.0:8080", nil)
 }
 
@@ -101,10 +108,18 @@ func generateFileName(name string) string {
 
 func upload(w http.ResponseWriter, r *http.Request) {
 	file, fileHeader, _ := r.FormFile("file")
+	content, _ := io.ReadAll(file)
 	filename := generateFileName(path.Ext(fileHeader.Filename))
-	minioClient.PutObject(context.Background(), BucketName, filename,
-		file, fileHeader.Size, minio.PutObjectOptions{})
-	w.Write([]byte(fmt.Sprintf("%s/%s/%s", Domain, BucketName, filename)))
+	info, err := minioClient.PutObject(context.Background(), bucketName, filename,
+		bytes.NewReader(content), fileHeader.Size, minio.PutObjectOptions{
+			ContentType: http.DetectContentType(content),
+		})
+	fmt.Println(info)
+	if err != nil {
+		fmt.Println(err)
+	} else {
+		w.Write([]byte(fmt.Sprintf("%s/%s/%s", endpoint, bucketName, filename)))
+	}
 }
 
 ```
@@ -129,7 +144,7 @@ docker run -d -p 8080:8080 -e Endpoint="" -e AccessKey="" -e SecretKey="" -e Buc
 
 根据`Typora`中自定义上传图片的逻辑
 
-![image-20230411111255470](http://storage.cptz.space/typora/1681182847.png)
+![1681182847](http://storage.cptz.space/typora/1681205420.png)
 
 在`Custom Command`中填入所需执行的命令，`Typora`会在命令后补全文件绝对路径并调用，因此需要从命令行参数中读取文件名，随后封装`Http`请求，最后把图片`URL`输出到标准输出，`Typora`会根据标准输出的结果替换图片路径。
 
@@ -149,7 +164,7 @@ import (
 	"os"
 )
 
-var UploadUrl = "localhost:8080/api/upload"
+var UploadUrl = "http://127.0.0.1:8080/"
 
 func main() {
 	content, _ := os.ReadFile(os.Args[1])
