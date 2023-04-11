@@ -18,13 +18,13 @@ docker run -d --name minio-server -p 9000:9000 -p 9001:9001 --env MINIO_ROOT_USE
 
 单击User，新建一个访问用户，随后为其添加全部权限
 
-![image-20230411105620116](http://storage.cptz.space/typora/1681181851.png)
+![1681181851](http://storage.cptz.space/typora/1681205096.png)
 
 随后生成该用户的`Service Account`
 
-![image-20230411105802092](http://storage.cptz.space/typora/1681181953.png)
+![1681181953](http://storage.cptz.space/typora/1681205122.png)
 
-![image-20230411105734163](http://storage.cptz.space/typora/1681181926.png)
+![1681181926](http://storage.cptz.space/typora/1681205150.png)
 
 记住生成的账号密码
 
@@ -32,7 +32,7 @@ docker run -d --name minio-server -p 9000:9000 -p 9001:9001 --env MINIO_ROOT_USE
 
 随后点击左侧`bucket`，新建一个`bucket`，取名随意，例如下图创建了名为`images`和`typora`的两个`bucket`
 
-![image-20230411104831608](http://storage.cptz.space/typora/1681181383.png)
+![1681181383](http://storage.cptz.space/typora/1681205178.png)
 
 随后选择你想存储的`bucket`，点击`manage`
 
@@ -40,7 +40,7 @@ docker run -d --name minio-server -p 9000:9000 -p 9001:9001 --env MINIO_ROOT_USE
 
 在`Access Rules`中添加一条
 
-![image-20230411110025687](http://storage.cptz.space/typora/1681182097.png)
+![1681182097](http://storage.cptz.space/typora/1681205197.png)
 
 至此，我们的`minio`服务已经配置完成
 
